@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+//Now we are up to section 6 - Make the card view accessible
 
 struct CardView: View {
     
@@ -16,15 +17,26 @@ struct CardView: View {
         VStack(alignment: .leading) {
             Text(scrum.title)
                 .font(.headline)
+                .accessibilityAddTraits(.isHeader)
             
             Spacer()
             
             HStack {
                 Label("\(scrum.attendees.count)", systemImage: "person.3")
+                    .accessibilityLabel("\(scrum.attendees.count) attendees")
+                
+                Spacer()
+                
                 Label("\(scrum.lengthInMinutes)", systemImage: "clock")
+                    .labelStyle(.trailingIcon)
+                    .accessibilityLabel("\(scrum.lengthInMinutes) minute meetings ")
+                   
             }
+            .font(.caption)
         }
-           
+        .padding()
+        .foregroundColor(scrum.theme.accentColor)
+
     }
 }
 
