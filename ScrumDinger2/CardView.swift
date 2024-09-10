@@ -7,11 +7,11 @@
 
 import SwiftUI
 
-//Now we are up to section 6 - Make the card view accessible
+
 
 struct CardView: View {
     
-    let scrum: DailyScrum
+    let scrum: DailyScrum //Pulled in our source of truth. Sample Data we are accessing is in a collection which is marked by indexs
     
     var body: some View {
         VStack(alignment: .leading) {
@@ -35,7 +35,7 @@ struct CardView: View {
             .font(.caption)
         }
         .padding()
-        .foregroundColor(scrum.theme.accentColor)
+        .foregroundColor(scrum.theme.accentColor) // Remember, we pulled in theme via Daily Scrum
 
     }
 }

@@ -33,7 +33,7 @@ struct MeetingView: View {
                     Label(
                         title: { Text("200") },
                         icon: { Image(systemName: "hourglass.tophalf.fill") }
-                    )
+                    ) // same as the label before but passed through a closure so can use more custom views within
                 }
                 
                 Spacer()

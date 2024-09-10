@@ -15,7 +15,11 @@ import SwiftUI
 
 struct DetailView: View {
     
-    let scrum: DailyScrum
+    @Binding var scrum: DailyScrum // Using a binding ensures that DetailView renders again when the user’s interaction modifies scrum.
+    
+    @State private var editingScrum = DailyScrum.emptyScrum // You’ll update this empty scrum to match the selected scrum when the user taps the Edit button via the DetailEditingView - Changes that a user makes to scrum in the edit view are shared with the editingScrum property in the detail view and passed down
+    
+    @State private var isPresentingEditView = false
     
     var body: some View {
         List {
@@ -51,9 +55,39 @@ struct DetailView: View {
                 }
             }
         }
-        .navigationTitle("\(scrum.title)")
-    
-        
+        .navigationTitle(scrum.title)
+        .toolbar {
+            Button("Edit") {
+                isPresentingEditView = true
+                editingScrum = scrum
+            }
+        }
+        .sheet(isPresented: $isPresentingEditView) {
+            NavigationStack {
+                DetailEditView(scrum: $editingScrum)
+                    .navigationTitle(scrum.title)
+                    .toolbar {
+                        ToolbarItem(placement: .cancellationAction) {
+                            Button("Cancel") {
+                                isPresentingEditView = false
+                            }
+                        
+                        }
+                        ToolbarItem(placement: .confirmationAction) {
+                            Button("Done") {
+                                isPresentingEditView = false
+
+                                scrum = editingScrum
+                                
+                                
+                            }
+                            
+                        }
+                    }
+
+            }
+        }
+        //Sheet will present a modal. Modal views remove users from the main navigation flow of the app. Use modality for short, self-contained tasks
     }
 }
 
@@ -62,6 +96,6 @@ struct DetailView: View {
     
     NavigationStack {
         
-        DetailView(scrum: DailyScrum.sampleData[0])
+        DetailView(scrum: .constant(DailyScrum.sampleData[0]))
     }
 }
