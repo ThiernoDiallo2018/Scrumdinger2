@@ -25,7 +25,7 @@ import AVFoundation
 struct MeetingView: View {
     
     @Binding var scrum: DailyScrum
-    @StateObject var scrumTimer = ScrumTimer() //MEETING VIEW OWNS SCRUMTIMER SOURCE OF TRUTH NOW. THE SOURCE OF TRUTH IS NOW TIED TO THE LIFECYCLE
+    @StateObject var scrumTimer = ScrumTimer() //MEETING VIEW OWNS SCRUMTIMER SOURCE OF TRUTH NOW. THE SOURCE OF TRUTH IS NOW TIED TO THE LIFECYCLE. THis is a reference. 
     
     private var player: AVPlayer { AVPlayer.sharedDingPlayer }
 
