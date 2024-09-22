@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import AVFoundation
 
 //Declarative - using SwiftUI, everything is made up of views on top of views
 //To customize views, we are going to use modifiers. You definitely remember this
@@ -22,49 +23,56 @@ import SwiftUI
  */
 
 struct MeetingView: View {
+    
+    @Binding var scrum: DailyScrum
+    @StateObject var scrumTimer = ScrumTimer() //MEETING VIEW OWNS SCRUMTIMER SOURCE OF TRUTH NOW. THE SOURCE OF TRUTH IS NOW TIED TO THE LIFECYCLE
+    
+    private var player: AVPlayer { AVPlayer.sharedDingPlayer }
+
+    
     var body: some View {
-        VStack {
-            ProgressView(value: 5, total: 15)
-            
-            HStack {
-                VStack(alignment: .leading) {
-                    Text("Time Elapsed")
-                        .font(.caption)
-                    Label(
-                        title: { Text("200") },
-                        icon: { Image(systemName: "hourglass.tophalf.fill") }
-                    ) // same as the label before but passed through a closure so can use more custom views within
-                }
+        ZStack {
+            RoundedRectangle(cornerRadius: 16.0)
+                .fill(scrum.theme.mainColor)
+            VStack {
                 
-                Spacer()
-                VStack(alignment: .trailing) {
-                    Text("Seconds Remaining")
-                        .font(.caption)
-                    Label("600", systemImage: "hourglass.bottomhalf.fill")
-                }
+                MeetingHeaderView(secondsElapsed: scrumTimer.secondsElapsed,
+                                  secondsRemaining: scrumTimer.secondsRemaining,
+                                  theme: scrum.theme) //this was extracted and bought into the view. It has its own lifecycle
+                Circle()
+                    .strokeBorder(lineWidth: 24)
+                
+                MeetingFooterView(speakers: scrumTimer.speakers, skipAction: scrumTimer.skipSpeaker) //extracted as well
+                
             }
-            .accessibilityElement(children: .ignore) //Can ignore the builtin accessibility of the child views and add your own below
-            .accessibilityLabel("Time Remaining") //when people using VO hear it, we have simplified it down to Time remaining so they understand easier and quicker
-            .accessibilityValue("10 Minutes") //Need to add value or SwiftUI will automatically infer from the child views
-            
-            Circle()
-                .strokeBorder(lineWidth: 24)
-            
-            HStack {
-                Text("Speaker 1 of 3")
-                Spacer()
-                Button(action: {}) {
-                    Image(systemName: "forward.fill")
-                }
-                .accessibilityLabel("Next Speaker") //Will read the button as "Next Speaker. Button"
-            }
-            
         }
         .padding()
+        .foregroundColor(scrum.theme.accentColor)
+        .onAppear{
+            startScrum()
+        }
+        .onDisappear {
+            endScrum()
+        }
+        .navigationBarTitleDisplayMode(.inline)
         
     }
-}
+        private func startScrum() {
+            scrumTimer.reset(lengthInMinutes: scrum.lengthInMinutes, attendees: scrum.attendees)
+            scrumTimer.speakerChangedAction = {
+                player.seek(to: .zero)
+                player.play()
+            }
+            scrumTimer.startScrum()
+        }
+    
+    private func endScrum() {
+        scrumTimer.stopScrum()
+        let newHistory = History(attendees: scrum.attendees)
+        scrum.history.insert(newHistory, at: 0)
+    }
+    }
 
 #Preview {
-    MeetingView()
+    MeetingView(scrum: .constant(DailyScrum.sampleData[0]))
 }

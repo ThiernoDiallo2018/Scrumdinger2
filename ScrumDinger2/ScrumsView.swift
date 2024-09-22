@@ -19,6 +19,10 @@ struct ScrumsView: View {
      The destination presents a single view in the navigation hierarchy when a user interacts with the element. Each row pushes to an individual destination. The Text view acts as a placeholder until you create the detail screen in the next section.
      */
     
+    @State private var isPresentingNewScrumView = false //true or false for the modal
+    
+    
+    
     var body: some View {
         NavigationStack {
             List($scrums) { $scrum in
@@ -29,10 +33,16 @@ struct ScrumsView: View {
             }
             .navigationTitle("Daily Scrums")
             .toolbar {
-                Button(action: {}) {
+                Button(action: {
+                    isPresentingNewScrumView = true
+                }) {
                     Image(systemName: "plus")
                 }
                 .accessibilityLabel("New Scrum To Be Added")
+            }
+            .sheet(isPresented: $isPresentingNewScrumView) {
+                NewScrumSheet(isPresentingNewScrumView: $isPresentingNewScrumView, scrums: $scrums)
+
             }
         }
     }
